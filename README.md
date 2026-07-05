@@ -9,6 +9,7 @@ Credits
 Sprite Assets: 
 [Warrior Free Animation Set by Clembod](https://clembod.itch.io/warrior-free-animation-set)
 [Free Pixel Art Forest by Eder Muniz](https://edermunizz.itch.io/free-pixel-art-forest)
+[Simple Top Down Character by Immunity](https://immunitys.itch.io/pixel-top-down-character)
 
 Tutorial Reference: 
 [Learn Unity by Making a 2D Game – Full Beginner Course (YouTube)](https://www.youtube.com/watch?v=ZEtKg9AyEJc&list=LL&index=2)

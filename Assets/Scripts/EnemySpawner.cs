@@ -44,7 +44,6 @@ public class EnemySpawner : MonoBehaviour
 
        if (createdOnTheRight)
        {
-       Debug.Log("Moving Left");
        enemy.SetDirection(-1);
        enemy.Flip();
        }

@@ -15,8 +15,8 @@ public class Entity : MonoBehaviour
     [SerializeField] protected float moveSpeed;
 
     [Header("Health")]
-    [SerializeField] private int maxHealth = 1;
-    [SerializeField] private int currentHealth;
+    [SerializeField] protected int maxHealth = 1;
+    [SerializeField] protected int currentHealth;
 
     [Header("Attack Details")]
     [SerializeField] protected float attackRadius;
@@ -67,13 +67,15 @@ public class Entity : MonoBehaviour
 
     protected virtual void Move()
     {
-        if (!canMove)
-        {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            return;
-        }
-        else
-            rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
+        //if (!canMove)
+        //{
+        //    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        //    return;
+        //}
+        //else
+        //    rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
+        float speed = canMove ? xInput * moveSpeed : 0f;
+        rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
     }
 
     public virtual void EnableMovementAndJump(bool enable)
@@ -95,9 +97,13 @@ public class Entity : MonoBehaviour
 
     protected virtual void HandleFlip()
     {
-        if (rb.linearVelocity.x > 0 && facingRight == false)
+        //if (rb.linearVelocity.x > 0 && facingRight == false)
+        //    Flip();
+        //else if (rb.linearVelocity.x < 0 && facingRight == true)
+        //    Flip();
+        if (xInput > 0 && !facingRight)
             Flip();
-        else if (rb.linearVelocity.x < 0 && facingRight == true)
+        else if (xInput < 0 && facingRight)
             Flip();
     }
 
@@ -116,16 +122,26 @@ public class Entity : MonoBehaviour
         }
     }
 
-    public void DamageTargets()
+    public virtual void DamageTargets()
     {
         Collider2D[] enemyColliders = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, whatIsTarget);
+
+        bool hitSomething = false;
 
         foreach (Collider2D enemy in enemyColliders)
         {
             Entity entityTarget = enemy.GetComponent<Entity>();
 
-            if(entityTarget != null)
+            if (entityTarget != null)
+            {
                 entityTarget.TakeDamage(1, transform);
+                hitSomething = true;
+            }
+        }
+
+        if (hitSomething && this is Player player)
+        {
+            player.HitRecoil();
         }
     }
 

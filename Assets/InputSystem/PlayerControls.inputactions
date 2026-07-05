@@ -34,7 +34,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "enemyAttackTest",
+                    "name": "Dash",
                     "type": "Button",
                     "id": "927b5796-855f-4087-ab4f-8790a25782a2",
                     "expectedControlType": "",
@@ -102,11 +102,11 @@
                 {
                     "name": "",
                     "id": "1e3b276f-8595-4b87-8f25-3d837e536cf9",
-                    "path": "<Keyboard>/f",
+                    "path": "<Keyboard>/k",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard",
-                    "action": "enemyAttackTest",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

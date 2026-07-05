@@ -7,8 +7,6 @@ public class Enemy : Entity
 
     protected override void Update()
     {
-        xInput = 1;
-
         base.Update();
         HandleAttack();
     }
@@ -20,6 +18,11 @@ public class Enemy : Entity
             animator.SetTrigger("attack");
     }
 
+    public void SetDirection(float direction)
+    {
+        xInput = direction;
+    }
+
     protected override void Move()
     {
         if (!canMove)
@@ -27,12 +30,19 @@ public class Enemy : Entity
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             return;
         }
-        rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
+        else
+            rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
     }
 
     protected override void HandleCollision()
     {
         base.HandleCollision();
         playerDetected = Physics2D.OverlapCircle(attackPoint.position, attackRadius, whatIsTarget);
+    }
+
+    protected override void Die()
+    {
+        base.Die();
+        UI.instance.AddKillCount();
     }
 }

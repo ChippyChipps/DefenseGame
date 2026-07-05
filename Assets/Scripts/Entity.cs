@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,17 +7,28 @@ public class Entity : MonoBehaviour
 {
     protected Animator animator;
     protected Rigidbody2D rb;
+    protected Collider2D col;
+    protected SpriteRenderer sr;
 
-    [Header("Player Settings")]
-    [SerializeField] protected float moveSpeed;
-    [SerializeField] private float jumpPower;
+    [Header("movement")]
     protected float xInput;
-    protected int facingDir = 1;
-    private bool facingRight = true;
-    protected bool canMove = true;
-    private bool canJump = true;
-    
-    [SerializeField] private InputActionReference move;
+    [SerializeField] protected float moveSpeed;
+
+    [Header("Health")]
+    [SerializeField] private int maxHealth = 1;
+    [SerializeField] private int currentHealth;
+
+    [Header("Attack Details")]
+    [SerializeField] protected float attackRadius;
+    [SerializeField] protected Transform attackPoint;
+    [SerializeField] protected LayerMask whatIsTarget;
+
+    [Header("Damage Feedback")]
+    [SerializeField] private Material damageMaterial;
+    [SerializeField] float damageFeedbackDuration = 0.2f;
+    [SerializeField] protected float knockbackForceX = 8f;
+    [SerializeField] protected float knockbackForceY = 6f;
+    [SerializeField] protected float knockbackDuration = 0.2f;
 
     [Header("Collision details")]
     [SerializeField] private float groundCheckDistance;
@@ -24,15 +36,21 @@ public class Entity : MonoBehaviour
     [SerializeField] private LayerMask whatIsGround;
     [SerializeField] protected Transform groundCheck;
 
-    [Header("Attack Details")]
-    [SerializeField] protected float attackRadius;
-    [SerializeField] protected Transform attackPoint;
-    [SerializeField] protected LayerMask whatIsTarget;
+    protected int facingDir = 1;
+    protected bool facingRight = true;
+    protected bool canMove = true;
+
+    private Coroutine damageFeedbackCor;
+    private Coroutine knockbackCor;
 
     protected virtual void Awake()
     {
         animator = GetComponentInChildren<Animator>();
+        sr = GetComponentInChildren<SpriteRenderer>();
+        col = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
+
+        currentHealth = maxHealth;
     }
 
     protected virtual void Update()
@@ -42,15 +60,30 @@ public class Entity : MonoBehaviour
         HandleAnimations();
     }
 
-    public void EnableMovementAndJump(bool enable)
-    {
-        canJump = enable;
-        canMove = enable;
-    }
-
     protected virtual void FixedUpdate()
     {
         Move();
+    }
+
+    protected virtual void Move()
+    {
+        if (!canMove)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
+        else
+            rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
+    }
+
+    public virtual void EnableMovementAndJump(bool enable)
+    {
+        canMove = enable;
+    }
+
+    protected virtual void HandleCollision()
+    {
+        isGrounded = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
     }
 
     protected virtual void HandleAnimations()
@@ -68,61 +101,105 @@ public class Entity : MonoBehaviour
             Flip();
     }
 
-    private void Flip()
+    public void Flip()
     {
         transform.Rotate(0, 180, 0);
         facingRight = !facingRight;
         facingDir = facingDir * -1;
     }
 
-    protected virtual void Move()
-    {
-        if (!canMove)
-        {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            return;
-        }        
-        else
-            rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
-
-    }
-    
-    public void Jump(InputAction.CallbackContext context)
-    {
-        if(context.performed && isGrounded && canJump)
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
-    }
-
     protected virtual void HandleAttack()
     {
-        if(isGrounded)
+        if (isGrounded)
         {
             animator.SetTrigger("Attack");
         }
     }
 
-    protected virtual void HandleCollision()
-    {
-        isGrounded = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
-    }
-
-    public void DamageEnemies()
+    public void DamageTargets()
     {
         Collider2D[] enemyColliders = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, whatIsTarget);
 
         foreach (Collider2D enemy in enemyColliders)
         {
-            //Enemy enemyScript = enemy.GetComponent<Enemy>();
-            //enemyScript.TakeDamage();
+            Entity entityTarget = enemy.GetComponent<Entity>();
 
-            //string enemyName = enemyScript.GetEnemyName();
-            //Debug.Log("I damange enemy "+enemyName);
+            if(entityTarget != null)
+                entityTarget.TakeDamage(1, transform);
         }
+    }
+
+    public virtual void TakeDamage(int damage, Transform attacker)
+    {
+        currentHealth -= damage;
+
+        PlayDamagedFeedback();
+
+        ApplyKnockback(attacker);
+
+        if (currentHealth <= 0)
+            Die();
+    }
+
+    private void PlayDamagedFeedback()
+    {
+        if (damageFeedbackCor != null)
+            StopCoroutine(damageFeedbackCor);
+
+        damageFeedbackCor = StartCoroutine(DamageFeedbackCoroutine());
+    }
+
+    private IEnumerator DamageFeedbackCoroutine()
+    {
+        Material originalMaterial = sr.material;
+
+        sr.material = damageMaterial;
+
+        yield return new WaitForSeconds(damageFeedbackDuration);
+
+        sr.material = originalMaterial;
+    }
+
+
+    protected virtual void ApplyKnockback(Transform attacker)
+    {
+        if (knockbackCor != null)
+            StopCoroutine(knockbackCor);
+
+        knockbackCor = StartCoroutine (KnockbackCoroutine(attacker));
+    }
+
+    private IEnumerator KnockbackCoroutine(Transform attacker)
+    {
+        canMove = false;
+
+        float direction = transform.position.x > attacker.position.x ? 1 : -1;
+
+        rb.linearVelocity = Vector2.zero;
+
+        rb.AddForce(new Vector2(direction * knockbackForceX, knockbackForceY), ForceMode2D.Impulse);
+
+        yield return new WaitForSeconds(knockbackDuration);
+
+        canMove = true;
+    }
+
+    protected virtual void Die()
+    {
+        animator.enabled = false;
+        col.enabled = false;
+
+        rb.gravityScale = 12;
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 15);
+
+        Destroy(gameObject, 3);
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, transform.position + new Vector3(0, -groundCheckDistance));
-        Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
+
+        if(attackPoint != null)
+            Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
     }
 }

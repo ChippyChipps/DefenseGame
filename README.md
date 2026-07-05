@@ -6,8 +6,11 @@ I followed the tutorial as a foundation and added my own implementations.
 
 Credits
 
-Sprite Assets: [Warrior Free Animation Set by Clembod](https://clembod.itch.io/warrior-free-animation-set)  
-Tutorial Reference: [Learn Unity by Making a 2D Game – Full Beginner Course (YouTube)](https://www.youtube.com/watch?v=ZEtKg9AyEJc&list=LL&index=2)
+Sprite Assets: 
+[Warrior Free Animation Set by Clembod](https://clembod.itch.io/warrior-free-animation-set)
+[Parallax Backgrounds: Caves](https://admurin.itch.io/parallax-backgrounds-caves)
+Tutorial Reference: 
+[Learn Unity by Making a 2D Game – Full Beginner Course (YouTube)](https://www.youtube.com/watch?v=ZEtKg9AyEJc&list=LL&index=2)
 
 Notes
  

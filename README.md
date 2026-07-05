@@ -8,7 +8,7 @@ Credits
 
 Sprite Assets: 
 [Warrior Free Animation Set by Clembod](https://clembod.itch.io/warrior-free-animation-set)
-[Parallax Backgrounds: Caves](https://admurin.itch.io/parallax-backgrounds-caves)
+[Free Pixel Art Forest by Eder Muniz](https://edermunizz.itch.io/free-pixel-art-forest)
 
 Tutorial Reference: 
 [Learn Unity by Making a 2D Game – Full Beginner Course (YouTube)](https://www.youtube.com/watch?v=ZEtKg9AyEJc&list=LL&index=2)

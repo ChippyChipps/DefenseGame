@@ -40,6 +40,7 @@ public class Entity : MonoBehaviour
     protected bool facingRight = true;
     protected bool canMove = true;
 
+    private Material originalMaterial;
     private Coroutine damageFeedbackCor;
     private Coroutine knockbackCor;
 
@@ -49,6 +50,8 @@ public class Entity : MonoBehaviour
         sr = GetComponentInChildren<SpriteRenderer>();
         col = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
+
+        originalMaterial = sr.material;
 
         currentHealth = maxHealth;
     }
@@ -97,10 +100,6 @@ public class Entity : MonoBehaviour
 
     protected virtual void HandleFlip()
     {
-        //if (rb.linearVelocity.x > 0 && facingRight == false)
-        //    Flip();
-        //else if (rb.linearVelocity.x < 0 && facingRight == true)
-        //    Flip();
         if (xInput > 0 && !facingRight)
             Flip();
         else if (xInput < 0 && facingRight)
@@ -167,8 +166,6 @@ public class Entity : MonoBehaviour
 
     private IEnumerator DamageFeedbackCoroutine()
     {
-        Material originalMaterial = sr.material;
-
         sr.material = damageMaterial;
 
         yield return new WaitForSeconds(damageFeedbackDuration);

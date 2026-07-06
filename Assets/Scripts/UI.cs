@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,6 +10,8 @@ public class UI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI killCounterText;
     [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private GameObject tutorialUI;
+    [SerializeField] private float tutorialDuration = 5f;
 
     private int killCount;
 
@@ -16,6 +19,13 @@ public class UI : MonoBehaviour
     {
         instance = this;
         Time.timeScale = 1.0f;
+    }
+
+    private void Start()
+    {
+        tutorialUI.SetActive(true);
+
+        StartCoroutine(HideTutorial());
     }
 
     private void Update()
@@ -39,5 +49,12 @@ public class UI : MonoBehaviour
     {
         int sceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(sceneIndex);
+    }
+
+    private IEnumerator HideTutorial()
+    {
+        yield return new WaitForSeconds(tutorialDuration);
+
+        tutorialUI.SetActive(false);
     }
 }

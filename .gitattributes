@@ -171,5 +171,7 @@ Packages/packages-lock.json linguist-generated
 LightingData.asset     binary
 
 # --- Language overrides for GitHub Linguist ---
-*.cs linguist-detectable=true
+*.cs linguist-detectable=true linguist-language=C#
 *.shader linguist-detectable=false
+*.hlsl linguist-detectable=false
+
